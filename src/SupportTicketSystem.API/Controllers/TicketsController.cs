@@ -81,7 +81,7 @@ public sealed class TicketsController(
         AssignUserDto dto,
         CancellationToken cancellationToken)
     {
-        // Призначення також може перевести заявку з New у InProgress у доменній сутності.
+        // Призначення може перевести заявку з New у InProgress у доменній сутності.
         var validationResult = await assignUserValidator.ValidateAsync(dto, cancellationToken);
         if (!validationResult.IsValid)
         {
