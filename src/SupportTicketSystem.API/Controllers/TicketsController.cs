@@ -16,7 +16,8 @@ public sealed class TicketsController(
     ITicketService ticketService,
     IValidator<CreateTicketDto> validator,
     IValidator<AssignUserDto> assignUserValidator,
-    IValidator<UpdateTicketStatusDto> statusValidator) : ControllerBase
+    IValidator<UpdateTicketStatusDto> statusValidator,
+    IValidator<CreateCommentDto> commentValidator) : ControllerBase
 {
     /// <summary>Повертає заявку за її ідентифікатором.</summary>
     /// <param name="id">Ідентифікатор заявки.</param>
@@ -129,5 +130,47 @@ public sealed class TicketsController(
                 Status = StatusCodes.Status400BadRequest
             });
         }
+    }
+
+    /// <summary>Додає коментар до заявки.</summary>
+    /// <param name="id">Ідентифікатор заявки.</param>
+    /// <param name="dto">Автор і текст коментаря.</param>
+    /// <param name="cancellationToken">Токен скасування операції.</param>
+    /// <response code="201">Коментар успішно додано.</response>
+    /// <response code="400">Дані коментаря некоректні.</response>
+    /// <response code="404">Заявки із вказаним ідентифікатором не існує.</response>
+    [HttpPost("{id:guid}/comments")]
+    [ProducesResponseType(typeof(CommentResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CommentResponseDto>> AddComment(
+        Guid id,
+        CreateCommentDto dto,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await commentValidator.ValidateAsync(dto, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new ValidationProblemDetails(validationResult.ToDictionary()));
+        }
+
+        var response = await ticketService.AddCommentAsync(id, dto, cancellationToken);
+        return response is null ? NotFound() : StatusCode(StatusCodes.Status201Created, response);
+    }
+
+    /// <summary>Повертає історію коментарів заявки у хронологічному порядку.</summary>
+    /// <param name="id">Ідентифікатор заявки.</param>
+    /// <param name="cancellationToken">Токен скасування операції.</param>
+    /// <response code="200">Історію коментарів повернуто.</response>
+    /// <response code="404">Заявки із вказаним ідентифікатором не існує.</response>
+    [HttpGet("{id:guid}/comments")]
+    [ProducesResponseType(typeof(IReadOnlyList<CommentResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<CommentResponseDto>>> GetComments(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await ticketService.GetCommentsAsync(id, cancellationToken);
+        return response is null ? NotFound() : Ok(response);
     }
 }

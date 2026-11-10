@@ -8,6 +8,8 @@ namespace SupportTicketSystem.Application.Abstractions;
 public interface ITicketRepository
 {
     Task<Ticket?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TicketComment>> GetCommentsAsync(Guid ticketId, CancellationToken cancellationToken = default);
     Task AddAsync(Ticket ticket, CancellationToken cancellationToken = default);
+    Task AddCommentAsync(TicketComment comment, CancellationToken cancellationToken = default);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

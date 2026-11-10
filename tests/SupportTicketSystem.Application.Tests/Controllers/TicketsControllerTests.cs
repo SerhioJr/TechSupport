@@ -65,5 +65,6 @@ public sealed class TicketsControllerTests
         service.Object,
         new CreateTicketDtoValidator(),
         new SupportTicketSystem.Application.Validators.AssignUserDtoValidator(),
-        new SupportTicketSystem.Application.Validators.UpdateTicketStatusDtoValidator());
+        new SupportTicketSystem.Application.Validators.UpdateTicketStatusDtoValidator(),
+        new SupportTicketSystem.Application.Validators.CreateCommentDtoValidator());
 }

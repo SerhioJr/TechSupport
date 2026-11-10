@@ -37,6 +37,8 @@ public class Ticket
     public string? AssigneeId { get; private set; }
     public DateTime? ResolvedAt { get; private set; }
 
+    public ICollection<TicketComment> Comments { get; private set; } = new List<TicketComment>();
+
     /// <summary>
     /// Призначає заявку фахівцю. Нова заявка автоматично переходить
     /// у статус InProgress після призначення першого фахівця.

@@ -17,5 +17,9 @@ public sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(ticket => ticket.Status).IsRequired().HasConversion<string>().HasMaxLength(20);
         builder.Property(ticket => ticket.CreatedAt).IsRequired();
         builder.Property(ticket => ticket.AssigneeId).HasMaxLength(100);
+        builder.HasMany(ticket => ticket.Comments)
+            .WithOne(comment => comment.Ticket)
+            .HasForeignKey(comment => comment.TicketId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

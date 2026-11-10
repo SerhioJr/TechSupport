@@ -9,6 +9,7 @@ namespace SupportTicketSystem.Infrastructure.Persistence;
 public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     public DbSet<Ticket> Tickets => Set<Ticket>();
+    public DbSet<TicketComment> TicketComments => Set<TicketComment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -65,6 +65,49 @@ namespace SupportTicketSystem.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Tickets");
                 });
+
+            modelBuilder.Entity("SupportTicketSystem.Domain.Entities.TicketComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+                    b.HasIndex("TicketId", "CreatedAt");
+                    b.ToTable("TicketComments");
+                });
+
+            modelBuilder.Entity("SupportTicketSystem.Domain.Entities.TicketComment", b =>
+                {
+                    b.HasOne("SupportTicketSystem.Domain.Entities.Ticket", "Ticket")
+                        .WithMany("Comments")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("SupportTicketSystem.Domain.Entities.Ticket", b =>
+                {
+                    b.Navigation("Comments");
+                });
 #pragma warning restore 612, 618
         }
     }

@@ -19,6 +19,7 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IValidator<CreateTicketDto>, CreateTicketDtoValidator>();
 builder.Services.AddScoped<IValidator<AssignUserDto>, AssignUserDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateTicketStatusDto>, UpdateTicketStatusDtoValidator>();
+builder.Services.AddScoped<IValidator<CreateCommentDto>, CreateCommentDtoValidator>();
 builder.Services.AddInfrastructure(builder.Configuration);
 // Swagger використовує XML-коментарі контролерів і DTO для зрозумілої документації API.
 builder.Services.AddEndpointsApiExplorer();

@@ -64,4 +64,35 @@ public sealed class TicketService(ITicketRepository repository) : ITicketService
         await repository.SaveChangesAsync(cancellationToken);
         return ticket.ToResponse();
     }
+
+    public async Task<CommentResponseDto?> AddCommentAsync(
+        Guid id,
+        CreateCommentDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var ticket = await repository.GetByIdAsync(id, cancellationToken);
+        if (ticket is null)
+        {
+            return null;
+        }
+
+        var comment = new TicketComment(id, dto.AuthorName.Trim(), dto.Message.Trim());
+        ticket.MarkUpdated(DateTime.UtcNow);
+        await repository.AddCommentAsync(comment, cancellationToken);
+        await repository.SaveChangesAsync(cancellationToken);
+        return comment.ToResponse();
+    }
+
+    public async Task<IReadOnlyList<CommentResponseDto>?> GetCommentsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        if (await repository.GetByIdAsync(id, cancellationToken) is null)
+        {
+            return null;
+        }
+
+        var comments = await repository.GetCommentsAsync(id, cancellationToken);
+        return comments.Select(comment => comment.ToResponse()).ToArray();
+    }
 }
