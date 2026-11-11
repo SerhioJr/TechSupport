@@ -8,6 +8,10 @@ public sealed class TicketQueryFilterValidator : AbstractValidator<TicketQueryFi
 {
     public TicketQueryFilterValidator()
     {
+        RuleFor(x => x.Category).IsInEnum().When(x => x.Category.HasValue);
+        RuleFor(x => x.Priority).IsInEnum().When(x => x.Priority.HasValue);
+        RuleFor(x => x.Status).IsInEnum().When(x => x.Status.HasValue);
+        RuleFor(x => x.AssigneeId).MaximumLength(100);
         RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(1);
         RuleFor(x => x.PageSize).InclusiveBetween(1, 50);
     }

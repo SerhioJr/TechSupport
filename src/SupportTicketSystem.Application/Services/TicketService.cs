@@ -10,15 +10,29 @@ namespace SupportTicketSystem.Application.Services;
 /// та оновлення заявок. Сервіс координує репозиторій і передає бізнес-правила
 /// доменній сутності Ticket.
 /// </summary>
-public sealed class TicketService(ITicketRepository repository) : ITicketService
+public sealed class TicketService(ITicketRepository repository, TimeProvider? timeProvider = null) : ITicketService
 {
+    private readonly TimeProvider clock = timeProvider ?? TimeProvider.System;
+
     /// <summary>Завантажує заявку та перетворює її у відповідь API.</summary>
     public async Task<TicketResponseDto?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {
         var ticket = await repository.GetByIdAsync(id, cancellationToken);
-        return ticket?.ToResponse();
+        return ticket?.ToResponse(clock.GetUtcNow().UtcDateTime);
+    }
+
+    /// <summary>Повертає сторінку заявок, відфільтрованих репозиторієм.</summary>
+    public async Task<PagedResult<TicketResponseDto>> GetTicketsAsync(
+        TicketQueryFilter filter,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await repository.GetTicketsAsync(filter, cancellationToken);
+        var currentTimeUtc = clock.GetUtcNow().UtcDateTime;
+        var items = result.Items.Select(ticket => ticket.ToResponse(currentTimeUtc)).ToArray();
+
+        return new PagedResult<TicketResponseDto>(items, result.TotalCount, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<TicketResponseDto> CreateAsync(
@@ -30,7 +44,7 @@ public sealed class TicketService(ITicketRepository repository) : ITicketService
         await repository.AddAsync(ticket, cancellationToken);
         await repository.SaveChangesAsync(cancellationToken);
 
-        return ticket.ToResponse();
+        return ticket.ToResponse(clock.GetUtcNow().UtcDateTime);
     }
 
     public async Task<TicketResponseDto?> AssignAsync(
@@ -46,7 +60,7 @@ public sealed class TicketService(ITicketRepository repository) : ITicketService
 
         ticket.AssignTo(dto.AssigneeId);
         await repository.SaveChangesAsync(cancellationToken);
-        return ticket.ToResponse();
+        return ticket.ToResponse(clock.GetUtcNow().UtcDateTime);
     }
 
     public async Task<TicketResponseDto?> UpdateStatusAsync(
@@ -62,7 +76,7 @@ public sealed class TicketService(ITicketRepository repository) : ITicketService
 
         ticket.ChangeStatus(dto.NewStatus);
         await repository.SaveChangesAsync(cancellationToken);
-        return ticket.ToResponse();
+        return ticket.ToResponse(clock.GetUtcNow().UtcDateTime);
     }
 
     public async Task<CommentResponseDto?> AddCommentAsync(

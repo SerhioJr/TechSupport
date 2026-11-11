@@ -12,5 +12,7 @@ public sealed record TicketResponseDto(
     TicketStatus Status,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
-    string? AssigneeId = null,
-    DateTime? ResolvedAt = null);
+    string? AssigneeId,
+    DateTime? ResolvedAt,
+    DateTime DueDate,
+    bool IsOverdue);

@@ -45,12 +45,18 @@ public sealed class TicketDtoSerializationTests
             TicketPriority.High,
             TicketStatus.New,
             DateTime.UtcNow,
-            null);
+            null,
+            null,
+            null,
+            DateTime.UtcNow.AddHours(4),
+            false);
 
         var json = JsonSerializer.Serialize(dto, Options);
 
         Assert.Contains("\"status\":\"New\"", json);
         Assert.Contains("\"category\":\"Network\"", json);
         Assert.Contains("\"priority\":\"High\"", json);
+        Assert.Contains("\"dueDate\"", json);
+        Assert.Contains("\"isOverdue\":false", json);
     }
 }
