@@ -16,6 +16,8 @@ builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddProblemDetails();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
+builder.Services.AddScoped<IValidator<TicketQueryFilter>, TicketQueryFilterValidator>();
 builder.Services.AddScoped<IValidator<CreateTicketDto>, CreateTicketDtoValidator>();
 builder.Services.AddScoped<IValidator<AssignUserDto>, AssignUserDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateTicketStatusDto>, UpdateTicketStatusDtoValidator>();
@@ -25,8 +27,18 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile), includeControllerXmlComments: true);
+    var apiXml = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+    var applicationXml = Path.Combine(AppContext.BaseDirectory, $"{typeof(TicketQueryFilter).Assembly.GetName().Name}.xml");
+
+    if (File.Exists(apiXml))
+    {
+        options.IncludeXmlComments(apiXml, includeControllerXmlComments: true);
+    }
+
+    if (File.Exists(applicationXml))
+    {
+        options.IncludeXmlComments(applicationXml);
+    }
 });
 
 var app = builder.Build();

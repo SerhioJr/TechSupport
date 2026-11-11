@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\SupportTicketSystem.Application\SupportTicketSystem.Application.csproj" />
     <ProjectReference Include="..\..\src\SupportTicketSystem.Domain\SupportTicketSystem.Domain.csproj" />
     <ProjectReference Include="..\..\src\SupportTicketSystem.API\SupportTicketSystem.API.csproj" />
+    <ProjectReference Include="..\..\src\SupportTicketSystem.Infrastructure\SupportTicketSystem.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

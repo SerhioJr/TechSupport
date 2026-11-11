@@ -1,3 +1,4 @@
+using SupportTicketSystem.Application.DTOs;
 using SupportTicketSystem.Domain.Entities;
 
 namespace SupportTicketSystem.Application.Abstractions;
@@ -8,6 +9,9 @@ namespace SupportTicketSystem.Application.Abstractions;
 public interface ITicketRepository
 {
     Task<Ticket?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<(IReadOnlyList<Ticket> Items, int TotalCount)> GetTicketsAsync(
+        TicketQueryFilter filter,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<TicketComment>> GetCommentsAsync(Guid ticketId, CancellationToken cancellationToken = default);
     Task AddAsync(Ticket ticket, CancellationToken cancellationToken = default);
     Task AddCommentAsync(TicketComment comment, CancellationToken cancellationToken = default);

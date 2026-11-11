@@ -17,7 +17,8 @@ public sealed class TicketsController(
     IValidator<CreateTicketDto> validator,
     IValidator<AssignUserDto> assignUserValidator,
     IValidator<UpdateTicketStatusDto> statusValidator,
-    IValidator<CreateCommentDto> commentValidator) : ControllerBase
+    IValidator<CreateCommentDto> commentValidator,
+    IValidator<TicketQueryFilter> queryFilterValidator) : ControllerBase
 {
     /// <summary>Повертає заявку за її ідентифікатором.</summary>
     /// <param name="id">Ідентифікатор заявки.</param>
@@ -34,6 +35,32 @@ public sealed class TicketsController(
         // Сервіс повертає null, якщо репозиторій не знайшов потрібну заявку.
         var response = await ticketService.GetByIdAsync(id, cancellationToken);
         return response is null ? NotFound() : Ok(response);
+    }
+
+    /// <summary>Повертає відфільтрований список заявок з пагінацією.</summary>
+    /// <param name="filter">Категорія, пріоритет, статус, фахівець, пошуковий запит і параметри сторінки.</param>
+    /// <param name="cancellationToken">Токен скасування операції.</param>
+    /// <remarks>
+    /// Приклад запиту: <c>GET /api/tickets?category=Network&amp;priority=High&amp;pageNumber=1&amp;pageSize=10</c>.
+    /// Приклад елемента сторінки: <c>{"items":[{"title":"VPN не працює","dueDate":"2026-11-11T16:00:00Z","isOverdue":false}],"totalCount":1,"pageNumber":1,"pageSize":10}</c>.
+    /// </remarks>
+    /// <response code="200">Список заявок і метадані сторінки.</response>
+    /// <response code="400">Параметри фільтрації або пагінації некоректні.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<TicketResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PagedResult<TicketResponseDto>>> GetTickets(
+        [FromQuery] TicketQueryFilter filter,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await queryFilterValidator.ValidateAsync(filter, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new ValidationProblemDetails(validationResult.ToDictionary()));
+        }
+
+        var response = await ticketService.GetTicketsAsync(filter, cancellationToken);
+        return Ok(response);
     }
 
     /// <summary>Створює нову заявку технічної підтримки.</summary>
