@@ -50,13 +50,11 @@ using (var scope = app.Services.CreateScope())
     await dbContext.Database.MigrateAsync();
 }
 
-// Налаштовуємо middleware та відкриваємо маршрути контролерів.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger залишається доступним для перевірки API і в контейнерному середовищі.
+app.UseSwagger();
+app.UseSwaggerUI();
 
+// Налаштовуємо middleware та відкриваємо маршрути контролерів.
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
